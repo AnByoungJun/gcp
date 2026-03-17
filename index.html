@@ -711,6 +711,7 @@ function saveProgress() {
 // ── ANSWER KEY ──
 let answerKey = {};
 let explanationKey = {}; // 해설 저장
+let translationKey = {}; // ★ 번역 저장
 
 function saveAnswerKey() {}
 
@@ -724,9 +725,16 @@ function getExplanation(qId) {
   return exp;
 }
 
+// ★ 번역 가져오기
+function getTranslation(qId) {
+  const trans = translationKey[qId] || translationKey[String(qId)] || null;
+  console.log(`getTranslation(${qId}):`, trans ? trans.substring(0, 50) + '...' : 'null', '| keys:', Object.keys(translationKey).slice(0, 5));
+  return trans;
+}
+
 // ── GOOGLE SHEETS SYNC (Apps Script 방식) ──
 // URL은 앱 내에 저장 (세션 유지)
-let gSheetsUrl = 'https://script.google.com/macros/s/AKfycbxc7Or_uD8PF2qBNd6kYVXtKgwho8pD4gD9kul0l8nB6B_nu7_IINyMgJhUrpdtz25kpQ/exec';
+let gSheetsUrl = 'https://script.google.com/macros/s/AKfycbwioHvljYi7SqEQKd73qnLX5lFUs5mWF6HAegf6xNf-rr8Tvd-MydtumuMIOkM1NiM1_w/exec';
 
 function loadSheetsUrl() {
   // 앱 HTML 파일에 URL이 하드코딩되어 있으면 사용
@@ -1016,7 +1024,7 @@ function renderQuestion(idx) {
   html += '</div>';
 
   // ── 제출 후 해설 표시 ──
-  if (isSubmitted && isChecked) {
+  if (isSubmitted) {
     const explanation = getExplanation(q.id);
     if (explanation) {
       html += `
@@ -1028,6 +1036,17 @@ function renderQuestion(idx) {
           <div class="explanation-content">${explanation}</div>
         </div>`;
     }
+    
+    // ★ 번역 표시 (항상 표시, 데이터 없으면 안내 메시지)
+    const translation = getTranslation(q.id);
+    html += `
+      <div class="explanation-box" style="border-color: var(--blue-dim); background: linear-gradient(135deg, rgba(79,142,247,0.08) 0%, rgba(79,142,247,0.02) 100%);">
+        <div class="explanation-header">
+          <span class="explanation-icon">🌐</span>
+          <span class="explanation-title">번역</span>
+        </div>
+        <div class="explanation-content">${translation || '<span style="color:var(--text-dim)">번역 데이터가 없습니다. 구글 시트 정답 시트의 D열에 번역을 입력하세요.</span>'}</div>
+      </div>`;
   }
 
   const wrap = document.getElementById('questionWrap');
@@ -1429,6 +1448,11 @@ async function sheetsConnect() {
   } else {
     console.log('해설 없음 - result.explanationKey:', result.explanationKey);
   }
+  // ★ 번역 로드
+  if (result.translationKey) {
+    translationKey = result.translationKey;
+    console.log('연결 시 번역 로드:', Object.keys(translationKey).length + '개');
+  }
   
   setSheetsStatus('✅ 연결 성공!', '#86efac');
   try { localStorage.setItem('gSheetsUrl', url); } catch(e) {}
@@ -1474,6 +1498,13 @@ async function doSheetsLoad() {
       explanationKey = result.explanationKey;
       const expCount = Object.keys(explanationKey).length;
       console.log('로드된 해설:', expCount + '개');
+    }
+    
+    // ★ 번역 로딩
+    if (result.translationKey && Object.keys(result.translationKey).length > 0) {
+      translationKey = result.translationKey;
+      const transCount = Object.keys(translationKey).length;
+      console.log('로드된 번역:', transCount + '개');
     }
     
     setSheetsStatus('✅ 완료!' + (result.savedAt ? ' (' + result.savedAt + ')' : ''), '#86efac');
