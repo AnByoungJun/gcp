@@ -887,15 +887,7 @@ function buildHome() {
 }
 
 function isLocked(day) {
-  // Unlock first day always; unlock subsequent if previous study day done
-  if (day === 1) return false;
-  // Find previous non-review day
-  for (let i = day - 1; i >= 1; i--) {
-    const d = DATA.find(x => x.day === i);
-    if (!d) continue;
-    if (d.type === 'review') continue;
-    return !(progress[i] && progress[i].done);
-  }
+  // ★ v13: 모든 Day 자유롭게 접근 가능
   return false;
 }
 
