@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<title>GCP PCA 덤프 학습 v13</title>
+<title>GCP PCA 덤프 학습 v14</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -515,6 +515,196 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 .question-wrap { animation: fadeSlideUp 0.25s ease; }
+
+/* ── 단어장 플래시카드 ── */
+#vocabScreen { background: var(--bg); }
+.vocab-header {
+  padding: 52px 20px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.vocab-header h2 { font-size: 20px; font-weight: 700; color: var(--blue); }
+.vocab-header p { font-size: 13px; color: var(--text-dim); margin-top: 4px; }
+
+.vocab-stats {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+.vocab-stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  text-align: center;
+  flex: 1;
+}
+.vocab-stat .val { font-size: 18px; font-weight: 700; color: var(--blue); font-family: 'Space Mono', monospace; }
+.vocab-stat .lbl { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+
+.flashcard-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+}
+
+.flashcard {
+  width: 100%;
+  max-width: 340px;
+  height: 220px;
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.flashcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+}
+
+.flashcard.flipped .flashcard-inner {
+  transform: rotateY(180deg);
+}
+
+.flashcard-front, .flashcard-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+
+.flashcard-front {
+  background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+  border: 2px solid var(--blue-dim);
+}
+
+.flashcard-back {
+  background: linear-gradient(135deg, var(--green-dim) 0%, #0d2818 100%);
+  border: 2px solid var(--green-dim);
+  transform: rotateY(180deg);
+}
+
+.flashcard-word {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+  word-break: break-word;
+}
+
+.flashcard-hint {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.flashcard-meaning {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--green);
+  line-height: 1.5;
+}
+
+.flashcard-nav {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  width: 100%;
+  max-width: 340px;
+}
+
+.flashcard-nav button {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.flashcard-nav .btn-prev {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.flashcard-nav .btn-next {
+  background: var(--blue);
+  color: #fff;
+}
+
+.flashcard-nav button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.vocab-progress {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--text-dim);
+  font-family: 'Space Mono', monospace;
+}
+
+.vocab-bottom {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+}
+
+.vocab-bottom button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.vocab-bottom .btn-home {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.vocab-bottom .btn-shuffle {
+  background: var(--yellow-dim);
+  border: 1px solid var(--yellow-dim);
+  color: var(--yellow);
+}
+
+/* 단어장 배너 */
+.vocab-banner {
+  margin: 8px 20px 0;
+  background: linear-gradient(135deg, #1a1040 0%, #2d1b69 100%);
+  border: 1px solid #4c1d95;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.vocab-banner:active { transform: scale(0.98); }
+.vocab-banner-icon { font-size: 24px; }
+.vocab-banner-text { flex: 1; }
+.vocab-banner-title { font-size: 14px; font-weight: 600; color: #a78bfa; }
+.vocab-banner-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.vocab-banner-arrow { font-size: 20px; color: var(--text-dim); }
 </style>
 </head>
 <body>
@@ -552,6 +742,16 @@ body {
       </div>
       <div class="answer-banner-arrow">›</div>
     </div>
+  </div>
+
+  <!-- 단어장 배너 -->
+  <div class="vocab-banner" id="vocabBanner" onclick="openVocab()" style="display:none">
+    <div class="vocab-banner-icon">📚</div>
+    <div class="vocab-banner-text">
+      <div class="vocab-banner-title">단어장 플래시카드</div>
+      <div class="vocab-banner-sub" id="vocabBannerSub">0개 단어 학습하기</div>
+    </div>
+    <div class="vocab-banner-arrow">›</div>
   </div>
 
   <div class="progress-ring-wrap">
@@ -623,6 +823,55 @@ body {
   </div>
   <div class="review-content" id="reviewContent"></div>
   <button class="back-home-btn" onclick="goHome()">🏠 홈으로 돌아가기</button>
+</div>
+
+<!-- 단어장 플래시카드 -->
+<div id="vocabScreen" class="screen">
+  <div class="vocab-header">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="back-btn" onclick="goHome()">←</button>
+      <div>
+        <h2>📚 단어장 플래시카드</h2>
+        <p>터치하면 뜻이 보여요</p>
+      </div>
+    </div>
+    <div class="vocab-stats">
+      <div class="vocab-stat">
+        <div class="val" id="vocabTotal">0</div>
+        <div class="lbl">전체</div>
+      </div>
+      <div class="vocab-stat">
+        <div class="val" id="vocabCurrent">0</div>
+        <div class="lbl">현재</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="flashcard-container">
+    <div class="flashcard" id="flashcard" onclick="flipCard()">
+      <div class="flashcard-inner">
+        <div class="flashcard-front">
+          <div class="flashcard-word" id="cardWord">Loading...</div>
+          <div class="flashcard-hint">👆 터치해서 뜻 보기</div>
+        </div>
+        <div class="flashcard-back">
+          <div class="flashcard-meaning" id="cardMeaning">뜻</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="flashcard-nav">
+      <button class="btn-prev" id="vocabPrevBtn" onclick="prevCard()">← 이전</button>
+      <button class="btn-next" id="vocabNextBtn" onclick="nextCard()">다음 →</button>
+    </div>
+    
+    <div class="vocab-progress" id="vocabProgress">1 / 100</div>
+  </div>
+  
+  <div class="vocab-bottom">
+    <button class="btn-home" onclick="goHome()">🏠 홈</button>
+    <button class="btn-shuffle" onclick="shuffleVocab()">🔀 섞기</button>
+  </div>
 </div>
 
 <!-- Toast -->
@@ -711,7 +960,10 @@ function saveProgress() {
 // ── ANSWER KEY ──
 let answerKey = {};
 let explanationKey = {}; // 해설 저장
-let translationKey = {}; // ★ 번역 저장
+
+// ── 단어장 ──
+let vocabList = [];  // [{word: '영어', meaning: '뜻'}, ...]
+let vocabIndex = 0;  // 현재 카드 인덱스
 
 function saveAnswerKey() {}
 
@@ -725,16 +977,9 @@ function getExplanation(qId) {
   return exp;
 }
 
-// ★ 번역 가져오기
-function getTranslation(qId) {
-  const trans = translationKey[qId] || translationKey[String(qId)] || null;
-  console.log(`getTranslation(${qId}):`, trans ? trans.substring(0, 50) + '...' : 'null', '| keys:', Object.keys(translationKey).slice(0, 5));
-  return trans;
-}
-
 // ── GOOGLE SHEETS SYNC (Apps Script 방식) ──
 // URL은 앱 내에 저장 (세션 유지)
-let gSheetsUrl = 'https://script.google.com/macros/s/AKfycbwioHvljYi7SqEQKd73qnLX5lFUs5mWF6HAegf6xNf-rr8Tvd-MydtumuMIOkM1NiM1_w/exec';
+let gSheetsUrl = 'https://script.google.com/macros/s/AKfycbyGgUQOyTbAOUJ-Chao_m_evrpb79j73Mod3Mr9N8c3q_S07_70v8Ic7cVY1YlTZ9x2Eg/exec';
 
 function loadSheetsUrl() {
   // 앱 HTML 파일에 URL이 하드코딩되어 있으면 사용
@@ -895,7 +1140,15 @@ function buildHome() {
 }
 
 function isLocked(day) {
-  // ★ v13: 모든 Day 자유롭게 접근 가능
+  // Unlock first day always; unlock subsequent if previous study day done
+  if (day === 1) return false;
+  // Find previous non-review day
+  for (let i = day - 1; i >= 1; i--) {
+    const d = DATA.find(x => x.day === i);
+    if (!d) continue;
+    if (d.type === 'review') continue;
+    return !(progress[i] && progress[i].done);
+  }
   return false;
 }
 
@@ -1024,7 +1277,7 @@ function renderQuestion(idx) {
   html += '</div>';
 
   // ── 제출 후 해설 표시 ──
-  if (isSubmitted) {
+  if (isSubmitted && isChecked) {
     const explanation = getExplanation(q.id);
     if (explanation) {
       html += `
@@ -1036,17 +1289,6 @@ function renderQuestion(idx) {
           <div class="explanation-content">${explanation}</div>
         </div>`;
     }
-    
-    // ★ 번역 표시 (항상 표시, 데이터 없으면 안내 메시지)
-    const translation = getTranslation(q.id);
-    html += `
-      <div class="explanation-box" style="border-color: var(--blue-dim); background: linear-gradient(135deg, rgba(79,142,247,0.08) 0%, rgba(79,142,247,0.02) 100%);">
-        <div class="explanation-header">
-          <span class="explanation-icon">🌐</span>
-          <span class="explanation-title">번역</span>
-        </div>
-        <div class="explanation-content">${translation || '<span style="color:var(--text-dim)">번역 데이터가 없습니다. 구글 시트 정답 시트의 D열에 번역을 입력하세요.</span>'}</div>
-      </div>`;
   }
 
   const wrap = document.getElementById('questionWrap');
@@ -1138,8 +1380,7 @@ function checkDayComplete() {
     progress[currentDay].done = true;
     progress[currentDay].score = correctCount;
     saveProgress();
-    // ★ 자동으로 결과 화면 이동하지 않고 토스트만 표시
-    showToast(`✅ Day ${currentDay} 완료! ${correctCount}/${total}점 (→ 버튼으로 결과 보기)`);
+    setTimeout(() => showResult(), 500);
   }
 }
 
@@ -1195,10 +1436,6 @@ function reviewWrong() {
     const sel = (p.selected && p.selected[i]) ? p.selected[i] : [];
     const isCorrect = p.scores && p.scores[i] === true;
     const myAns = sel.map(k => letters[k]).sort().join(', ') || '(미응답)';
-    
-    // ★ 정답 가져오기
-    const correctIdxs = getCorrectLetters(q.id);
-    const correctAns = correctIdxs ? correctIdxs.map(k => letters[k]).sort().join(', ') : '(정답 없음)';
 
     html += `<div class="review-q-card" style="border-color:${isCorrect ? 'var(--green-dim)' : 'var(--red-dim)'}">
       <div class="rq-num" style="display:flex;align-items:center;gap:8px">
@@ -1211,66 +1448,22 @@ function reviewWrong() {
     q.o.forEach((opt, oi) => {
       const letter = letters[oi];
       const isSelected = sel.includes(oi);
-      const isCorrectOption = correctIdxs && correctIdxs.includes(oi);
-      
-      // ★ 정답 보기 표시 (초록 테두리)
-      let bgColor = 'var(--surface2)';
-      let borderColor = 'var(--border)';
-      let textColor = 'var(--text-dim)';
-      
-      if (isCorrectOption) {
-        bgColor = 'var(--green-dim)';
-        borderColor = 'var(--green)';
-        textColor = 'var(--green)';
-      }
-      if (isSelected && !isCorrectOption) {
-        bgColor = 'var(--red-dim)';
-        borderColor = 'var(--red)';
-        textColor = 'var(--red)';
-      }
-      
       html += `<div style="padding:8px 12px;margin-bottom:4px;border-radius:8px;font-size:13px;
-        background:${bgColor};
-        border:1px solid ${borderColor};
-        color:${textColor}">
+        background:${isSelected ? (isCorrect ? 'var(--green-dim)' : 'var(--red-dim)') : 'var(--surface2)'};
+        border:1px solid ${isSelected ? (isCorrect ? 'var(--green)' : 'var(--red)') : 'var(--border)'};
+        color:${isSelected ? (isCorrect ? 'var(--green)' : 'var(--red)') : 'var(--text-dim)'}">
         <strong>${letter}.</strong> ${opt.replace(/^[A-F]\.\s*/, '')}
-        ${isCorrectOption ? ' ✓' : ''}${isSelected && !isCorrectOption ? ' ✗' : ''}
       </div>`;
     });
 
     html += `</div>
       <div class="rq-ans" style="background:${isCorrect ? 'var(--green-dim)' : 'var(--red-dim)'}">
-        <div style="flex:1">
+        <div>
           <div class="lbl">내 선택</div>
           <div class="val" style="color:${isCorrect ? 'var(--green)' : 'var(--red)'}">${myAns}</div>
         </div>
-        <div style="flex:1">
-          <div class="lbl">정답</div>
-          <div class="val" style="color:var(--green)">${correctAns}</div>
-        </div>
-      </div>`;
-    
-    // ★ 해설 표시
-    const explanation = getExplanation(q.id);
-    if (explanation) {
-      html += `
-        <div style="margin-top:12px;padding:12px;background:var(--surface2);border-radius:8px;border:1px solid var(--yellow-dim);">
-          <div style="font-size:12px;color:var(--yellow);font-weight:700;margin-bottom:6px;">💡 해설</div>
-          <div style="font-size:13px;color:var(--text);line-height:1.6;">${explanation}</div>
-        </div>`;
-    }
-    
-    // ★ 번역 표시
-    const translation = getTranslation(q.id);
-    if (translation) {
-      html += `
-        <div style="margin-top:8px;padding:12px;background:var(--surface2);border-radius:8px;border:1px solid var(--blue-dim);">
-          <div style="font-size:12px;color:var(--blue);font-weight:700;margin-bottom:6px;">🌐 번역</div>
-          <div style="font-size:13px;color:var(--text);line-height:1.6;">${translation}</div>
-        </div>`;
-    }
-    
-    html += `</div>`;
+      </div>
+    </div>`;
   });
 
   if (wrongIdxs.length === 0) {
@@ -1497,10 +1690,11 @@ async function sheetsConnect() {
   } else {
     console.log('해설 없음 - result.explanationKey:', result.explanationKey);
   }
-  // ★ 번역 로드
-  if (result.translationKey) {
-    translationKey = result.translationKey;
-    console.log('연결 시 번역 로드:', Object.keys(translationKey).length + '개');
+  // ★ 단어장 로드
+  if (result.vocabList && result.vocabList.length > 0) {
+    vocabList = result.vocabList;
+    console.log('연결 시 단어장 로드:', vocabList.length + '개');
+    updateVocabBanner();
   }
   
   setSheetsStatus('✅ 연결 성공!', '#86efac');
@@ -1549,11 +1743,11 @@ async function doSheetsLoad() {
       console.log('로드된 해설:', expCount + '개');
     }
     
-    // ★ 번역 로딩
-    if (result.translationKey && Object.keys(result.translationKey).length > 0) {
-      translationKey = result.translationKey;
-      const transCount = Object.keys(translationKey).length;
-      console.log('로드된 번역:', transCount + '개');
+    // ★ v14: 단어장 로딩
+    if (result.vocabList && result.vocabList.length > 0) {
+      vocabList = result.vocabList;
+      console.log('로드된 단어장:', vocabList.length + '개');
+      updateVocabBanner();
     }
     
     setSheetsStatus('✅ 완료!' + (result.savedAt ? ' (' + result.savedAt + ')' : ''), '#86efac');
@@ -1574,6 +1768,79 @@ async function doSheetsSave() {
     setSheetsStatus('✅ 저장 완료! ' + (result.savedAt || ''), '#86efac');
   } catch(e) {
     setSheetsStatus('❌ ' + e.message, '#fca5a5');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  단어장 플래시카드
+// ══════════════════════════════════════════════════════════════
+
+function openVocab() {
+  if (vocabList.length === 0) {
+    showToast('⚠️ 단어가 없습니다. Sheets 연동 후 불러오기를 해주세요.');
+    return;
+  }
+  vocabIndex = 0;
+  renderCard();
+  showScreen('vocabScreen');
+}
+
+function renderCard() {
+  if (vocabList.length === 0) return;
+  
+  const card = vocabList[vocabIndex];
+  document.getElementById('cardWord').textContent = card.word;
+  document.getElementById('cardMeaning').textContent = card.meaning;
+  document.getElementById('vocabProgress').textContent = `${vocabIndex + 1} / ${vocabList.length}`;
+  document.getElementById('vocabTotal').textContent = vocabList.length;
+  document.getElementById('vocabCurrent').textContent = vocabIndex + 1;
+  
+  // 카드 뒤집기 초기화
+  document.getElementById('flashcard').classList.remove('flipped');
+  
+  // 버튼 상태
+  document.getElementById('vocabPrevBtn').disabled = vocabIndex === 0;
+  document.getElementById('vocabNextBtn').disabled = vocabIndex >= vocabList.length - 1;
+}
+
+function flipCard() {
+  document.getElementById('flashcard').classList.toggle('flipped');
+}
+
+function prevCard() {
+  if (vocabIndex > 0) {
+    vocabIndex--;
+    renderCard();
+  }
+}
+
+function nextCard() {
+  if (vocabIndex < vocabList.length - 1) {
+    vocabIndex++;
+    renderCard();
+  }
+}
+
+function shuffleVocab() {
+  // Fisher-Yates 셔플
+  for (let i = vocabList.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [vocabList[i], vocabList[j]] = [vocabList[j], vocabList[i]];
+  }
+  vocabIndex = 0;
+  renderCard();
+  showToast('🔀 단어 순서를 섞었습니다!');
+}
+
+function updateVocabBanner() {
+  const banner = document.getElementById('vocabBanner');
+  const sub = document.getElementById('vocabBannerSub');
+  
+  if (vocabList.length > 0) {
+    banner.style.display = 'flex';
+    sub.textContent = `${vocabList.length}개 단어 학습하기`;
+  } else {
+    banner.style.display = 'none';
   }
 }
 
