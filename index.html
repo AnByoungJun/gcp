@@ -1380,7 +1380,8 @@ function checkDayComplete() {
     progress[currentDay].done = true;
     progress[currentDay].score = correctCount;
     saveProgress();
-    setTimeout(() => showResult(), 500);
+    // ★ 자동 이동 제거 - 토스트만 표시, → 버튼으로 결과 확인
+    showToast(`✅ Day ${currentDay} 완료! ${correctCount}/${total}점`);
   }
 }
 
