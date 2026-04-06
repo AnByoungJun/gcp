@@ -959,7 +959,8 @@ function saveProgress() {
 
 // ── ANSWER KEY ──
 let answerKey = {};
-let explanationKey = {}; // 해설 저장
+let explanationKey = {}; // 해설 저장 (C열)
+let translationKey = {}; // 번역 저장 (D열)
 
 // ── 단어장 ──
 let vocabList = [];  // [{word: '영어', meaning: '뜻'}, ...]
@@ -975,6 +976,11 @@ function getExplanation(qId) {
   const exp = explanationKey[qId] || explanationKey[String(qId)] || null;
   console.log(`getExplanation(${qId}):`, exp ? exp.substring(0, 50) + '...' : 'null', '| keys:', Object.keys(explanationKey).slice(0, 5));
   return exp;
+}
+
+function getTranslation(qId) {
+  const tr = translationKey[qId] || translationKey[String(qId)] || null;
+  return tr;
 }
 
 // ── GOOGLE SHEETS SYNC (Apps Script 방식) ──
@@ -1276,19 +1282,29 @@ function renderQuestion(idx) {
 
   html += '</div>';
 
-  // ── 제출 후 해설 표시 ──
+  // ── 제출 후 해설 및 번역 표시 ──
   if (isSubmitted && isChecked) {
+    // 해설 (C열)
     const explanation = getExplanation(q.id);
-    if (explanation) {
-      html += `
-        <div class="explanation-box">
-          <div class="explanation-header">
-            <span class="explanation-icon">💡</span>
-            <span class="explanation-title">해설</span>
-          </div>
-          <div class="explanation-content">${explanation}</div>
-        </div>`;
-    }
+    html += `
+      <div class="explanation-box">
+        <div class="explanation-header">
+          <span class="explanation-icon">💡</span>
+          <span class="explanation-title">해설</span>
+        </div>
+        <div class="explanation-content">${explanation || '해설이 등록되지 않았습니다. (구글 시트 정답 시트의 C열에 해설 입력)'}</div>
+      </div>`;
+    
+    // 번역 (D열)
+    const translation = getTranslation(q.id);
+    html += `
+      <div class="explanation-box" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 4px solid #1976d2;">
+        <div class="explanation-header">
+          <span class="explanation-icon">🌐</span>
+          <span class="explanation-title" style="color: #1976d2;">번역</span>
+        </div>
+        <div class="explanation-content">${translation || '번역이 등록되지 않았습니다. (구글 시트 정답 시트의 D열에 번역 입력)'}</div>
+      </div>`;
   }
 
   const wrap = document.getElementById('questionWrap');
@@ -1691,6 +1707,11 @@ async function sheetsConnect() {
   } else {
     console.log('해설 없음 - result.explanationKey:', result.explanationKey);
   }
+  // ★ 번역(D열) 로드
+  if (result.translationKey) {
+    translationKey = result.translationKey;
+    console.log('연결 시 번역 로드:', Object.keys(translationKey).length + '개');
+  }
   // ★ 단어장 로드
   if (result.vocabList && result.vocabList.length > 0) {
     vocabList = result.vocabList;
@@ -1742,6 +1763,12 @@ async function doSheetsLoad() {
       explanationKey = result.explanationKey;
       const expCount = Object.keys(explanationKey).length;
       console.log('로드된 해설:', expCount + '개');
+    }
+    
+    // ★ 번역(D열) 로딩
+    if (result.translationKey && Object.keys(result.translationKey).length > 0) {
+      translationKey = result.translationKey;
+      console.log('로드된 번역:', Object.keys(translationKey).length + '개');
     }
     
     // ★ v14: 단어장 로딩
