@@ -1883,6 +1883,25 @@ function shuffleVocab() {
 
 // ── TTS: 영단어 읽기 ──
 let ttsSupported = ('speechSynthesis' in window);
+let _ttsResumeTimer = null;
+
+// 모바일 Chrome 버그: 15초 넘으면 자동 중단 → resume() 주기적 호출로 방지
+function _ttsKeepAlive() {
+  _ttsResumeTimer = setInterval(() => {
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.pause();
+      window.speechSynthesis.resume();
+    } else {
+      clearInterval(_ttsResumeTimer);
+    }
+  }, 10000);
+}
+
+function _ttsResetBtn() {
+  clearInterval(_ttsResumeTimer);
+  const btn = document.getElementById('speakBtn');
+  if (btn) { btn.classList.remove('speaking'); btn.textContent = '🔊 듣기'; }
+}
 
 function speakWord() {
   if (!ttsSupported) {
@@ -1895,26 +1914,36 @@ function speakWord() {
   // 재생 중이면 중지
   if (window.speechSynthesis.speaking) {
     window.speechSynthesis.cancel();
-    document.getElementById('speakBtn').classList.remove('speaking');
+    _ttsResetBtn();
     return;
   }
-
-  const utt = new SpeechSynthesisUtterance(card.word);
-  utt.lang = 'en-US';
-  utt.rate = 0.85;
-  utt.pitch = 1;
 
   const btn = document.getElementById('speakBtn');
   btn.classList.add('speaking');
   btn.textContent = '🔊 재생중';
 
-  utt.onend = () => {
-    btn.classList.remove('speaking');
-    btn.textContent = '🔊 듣기';
-  };
-  utt.onerror = () => {
-    btn.classList.remove('speaking');
-    btn.textContent = '🔊 듣기';
+  // cancel() 직후 바로 speak()하면 묵음 발생 → 120ms 딜레이 후 실행
+  window.speechSynthesis.cancel();
+  setTimeout(() => _doSpeak(card.word), 120);
+}
+
+function _doSpeak(text) {
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang  = 'en-US';
+  utt.rate  = 0.85;
+  utt.pitch = 1;
+
+  // en-US 음성 명시 선택 (없으면 기본값 사용)
+  const voices = window.speechSynthesis.getVoices();
+  const enVoice = voices.find(v => v.lang === 'en-US' && v.localService)
+                || voices.find(v => v.lang === 'en-US')
+                || voices.find(v => v.lang.startsWith('en'));
+  if (enVoice) utt.voice = enVoice;
+
+  utt.onstart = () => _ttsKeepAlive();
+  utt.onend   = () => _ttsResetBtn();
+  utt.onerror = (e) => {
+    if (e.error !== 'interrupted') _ttsResetBtn();
   };
 
   window.speechSynthesis.speak(utt);
